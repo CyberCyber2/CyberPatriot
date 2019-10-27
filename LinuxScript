@@ -803,19 +803,10 @@ disown; sleep 2;
 disown; sleep 2; 
 #big q is don’t wait for user input, lower q is only show warnings, -c is do it for whole system
 
-#https://github.com/bstrauch24/cyberpatriot/blob/master/security.sh (is able to accept feedback)
-#https://github.com/willshiao/cyberpatriot/blob/master/Scripts/Linux/meme.sh
-#https://github.com/JoshuaTatum/cyberpatriot/blob/master/harrisburg-linux.sh
-#https://github.com/willshiao/cyberpatriot/blob/master/Checklists/Linux/CyberPatriot%20Linux%20Checklist.pdf
-#https://github.com/hexidecimals/cyberpatriot/blob/master/linux.sh (has way to find readme by itself)
 
 message="The script has finished executing on this computer. This is being run as $(whoami) and has $(finger $(whoami) )."
 number=0000000001
 #sendtext () { curl http://textbelt.com/text -d number=$number -d "message=$message";echo message sent; }
 #sendtext();
-
-#Text messages from terminal:
-#https://linuxsupernoob.wordpress.com/2013/01/08/how-to-send-text-message-from-terminal/
-#http://osxdaily.com/2014/03/12/send-sms-text-message-from-command-line/
 
 echo "SCRIPT COMPLETE"
