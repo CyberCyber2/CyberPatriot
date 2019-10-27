@@ -6,7 +6,7 @@
 	#3. Create README with all user names
 	#4. To add users, create a file "addusers.txt" with the usernames. Do the permissions manually
 	#5. The script runs as the logged in user
-#-----------THE SCRIPT WONT-----------
+#-----------THE SCRIPT WON'T-----------
 	#1. Configure user permissions
 	#2. Delete backdoor starting gile
 	#3. Very complicated things
@@ -20,7 +20,8 @@
 
 
 #---------SCRIPT--------------
-#save all of the logs before you begin messing with stuff
+
+#Save logs in case of error
 mkdir logs
 echo "auth log:" > logs/authLogs.txt
 cat /var/log/auth.log >> logs/authLogs.txt
@@ -53,7 +54,7 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-#change root password
+#Change Root Password 
 yes "YuGioSL4vIAA@!*(" | passwd
 echo "Finished with changing root password"
 echo "" > usersChanged.txt
@@ -154,6 +155,8 @@ apt-get install ufw -y >> /dev/null 2>&1
 (ufw enable  >> Firewall.txt; yes | ufw reset  >> Firewall.txt; ufw enable  >> Firewall.txt; ufw allow http; ufw allow https; ufw deny 23; ufw deny 2049; ufw deny 515; ufw deny 111; ufw logging high >> Firewall.txt; echo "" >> Firewall.txt) &
 #The little & at the end will cause this entire section of code to be run synchronously with the rest of this script, meaning that it will execute in the background while the rest of this script continues on. NOTE: IF YOU CLOSE THE TERMINAL, IT WILL TERMINATE THIS BACKGROUND PROCESS AS WELL.
 echo "Working on ufw"
+
+#####################IPTABLES-Only uncomment on IPTABLES IMAGES################################
 #allow http - means
 #allow https - means
 #deny 23 - means
@@ -161,9 +164,9 @@ echo "Working on ufw"
 #deny 515 - means
 #deny 111 - means
 
-#Attempts to use iptables to set a few rules to secure computer DO NOT DISTURB WHAT YOU DON’T UNDERSTAND
+#Configure IPTables, may break image
 #iptables -F #clears all existing rules
-#DO NOT DO THIS WITHOUT KNOWING WHAT YOU ARE DOING!!! THIS IS WHAT BROKE THE NETWORK IN THE IMAGE
+#This may break the image
 
 #allow all incoming ssh
 #iptables –A INPUT –I eth0 –p tcp –dport 22 –m state –state NEW, ESTABLISHED –j ACCEPT
@@ -175,7 +178,7 @@ echo "Working on ufw"
 #iptables –N LOGGING
 #iptables –A INPUT –j LOGGING
 #iptables –A LOGGING –m limit –limit 2/min –j LOG –log-prefix "IPTables Packet Dropped: " –log-level iptables –A LOGGING –j DROP
-#DO NOT USE THIS AS CURRENTLY STATED, AS THIS WILL GO TO THE LOGGING CHAIN AND THEN BEGIN DROPPING ALL PACKETS IT RECIEVES. ONLY REASON STILL HERE IS SO I CAN LEARN HOW TO NOT DO THIS
+#Warning, never run the above, breaks image
 
 #iptables -A INPUT -p tcp -m tcp --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
 #iptables -A INPUT -p tcp -m tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
@@ -194,9 +197,9 @@ echo "Working on ufw"
 #  iptables -A INPUT -p udp -s 0/0 -d 0/0 --dport 111 -j DROP        #Block Sun rpc/NFS
 #  iptables -A INPUT -p all -s localhost  -i eth0 -j DROP            #Deny outside packets from internet which claim to be from your loopback interface.
 
+#############################################
 
-
-#Will go into the lightdm library and turn off guest accounts
+#DISABLE GUEST ACCOUNTS
 /usr/lib/lightdm/lightdm-set-defaults -l false
 echo $? >> WorkProperly.txt
 echo "if last was 0, then lightdm was turned off properly" >> WorkProperly.txt
@@ -228,7 +231,7 @@ chown root:root /etc/shadow
 echo "Finished changing permissions"
 
 
-#Remove unwanted alias
+#REMOVE BAD ALIAS
 echo "Bad Aliases:" > AliasesAndFunctions.txt
 for i in $(echo $(alias | grep -vi -e "alias egrep='egrep --color=auto'" -e "alias fgrep='fgrep --color=auto'" -e "alias grep='grep --color=auto'" -e "alias l='ls -CF'" -e "alias la='ls -A'" -e "alias ll='ls -alF'" -e "alias ls='ls --color=auto'" | cut -f 1 -d=) | cut -f 2 -d ' ') ; do 
 	echo $(alias | grep -e $i)  >> AliasesAndFunctions.txt;
@@ -255,7 +258,7 @@ exec false" > /etc/init/control-alt-delete.conf
 echo "Finished cleaning control-alt-delete"
 
 
-#goes and replaces the /etc/sudoers file with a clean one
+#Replace and Configure SUDOERS
 if [[ $(ls -la /etc | grep -ic sudoers) -ne 0 ]]; then
 	echo "Replacing /etc/sudoers" >> WorkProperly.txt
 cp /etc/sudoers /etc/.sudoers
@@ -492,27 +495,9 @@ echo "root" > /etc/at.allow
 echo "Finished creating cron/at.allow and deleting cron/at.deny"
 
 packageName=("john" "telnetd" "logkeys" "hydra" "fakeroot" "nmap" "crack" "medusa" "nikto" "tightvnc" "bind9" "avahi" "cupsd" "postfix" "nginx" "frostwire" "vuze" "samba" "apache2" "ftp" "vsftpd" "netcat" "openssh" "weplab" "pyrit" "mysql" "php5" "proftpd-basic" "filezilla" "postgresql" "irssi")
-
 dpkgName=("john john-data" "openbsd-inetd telnetd" "logkeys" " hydra-gtk hydra" "fakeroot libfakeroot" "nmap zenmap" "crack crack-common" "libssh2-1 medusa" "" "xtightvncviewer" "bind9 bind9utils" "avahi-autoipd avahi-daemon avahi-utils" "cups cups-core-drivers printer-driver-hpcups cupsddk indicator-printers printer-driver-splix hplip printer-driver-gutenprint bluez-cups printer-driver-postscript-hp cups-server-common cups-browsed cups-bsd cups-client cups-common cups-daemon cups-ppdc cups-filters cups-filters-core-drivers printer-driver-pxljr printer-driver-foo2zjs foomatic-filters cups-pk-helper" "postfix" "nginx nginx-core nginx-common" "frostwire" "azureus vuze" "samba samba-common samba-common-bin" "apache2 apache2.2-bin" "ftp" "vsftpd" "netcat-traditional netcat-openbsd" "openssh-server openssh-client ssh" "weplab" "pyrit" "mysql-server php5-mysql" "php5" "proftpd-basic" "filezilla" "postgresql" "irssi")
 
-#FIND NIKTO PACKAGE NAME
-#FIND TIGHTVNC PACKAGE NAME
-#HOW DO YOU REMOVE JUST THE SERVER PART OF CUPS
-#Can’t install frostwire with apt-get, but can remove it with that name
-
-#automatically attempts to remove known bad programs that would never be allowed on a computer (and brings up option for others)
-#yes | dpkg --remove john	#//password cracker
-#yes | dpkg --remove telnetd	#//insecure server
-#yes | dpkg --remove logkeys		#//keylogger
-#yes | dpkg --remove Hydra	#//password cracker
-#yes | dpkg --remove hydra
-#yes | dpkg --remove fakeroot
-#yes | dpkg --remove nmap	#//unnecessary polling tool
-#yes | dpkg --remove Crack	#//password cracker
-#yes | dpkg --remove crack
-#yes | dpkg --remove medusa	#//brute force password cracker
-#yes | dpkg --remove nikto 	#//polling tool/possible hacking tool
-#yes | dpkg --remove tightvnc		#//remote desktop
+#Malware to Add: Nikto, TightVNC, CUPSm frostwire
 
 tLen=${#packageName[@]}		#syntax to find total length of array
 for (( i=0; $i<$tLen; i++)); do
@@ -525,23 +510,6 @@ for (( i=0; $i<$tLen; i++)); do
 	fi
 done;
 
-
-#dpkg --remove bind		//open DNS server
-#dpkg --remove bind9
-#dpkg --remove avahi
-#dpkg --remove cupsd
-#dpkg --remove master
-#dpkg --remove nginx		//possibly unnecessary server
-#dpkg --remove nginx-core nginx-common
-#dpkg --remove frostwire	//bittorrent
-#dpkg --remove Vuze		//bittorrent
-#dpkg --remove vuze
-#dpkg --remove samba		//possibly unnecessary server
-#dpkg --remove apache2	//possibly unnecessary server
-#dpkg --remove ftp		//possibly unnecessary server
-#dpkg --remove vsftpd
-#dpkg --remove netcat		//possibly unnecessary program that has netcat backdoors
-#*dpkg --remove netcat-traditional
 echo "Finished removing common bad packages"
 
 
@@ -578,7 +546,7 @@ echo "Finished looking for suspicious files with SUID permissions"
 
 
 
-#install the needed programs like rkhunter, tree, etc
+#Install Needed Programs for future use
 apt-get install rkhunter tree debsums libpam-cracklib chkrootkit clamav lynis -y > /dev/null 2>&1 
 
 # VSFTPD
@@ -681,7 +649,7 @@ read option
 if [[ $option =~ ^[Yy]$ ]]
 then
 apt-get install ssh openssh-server openssh-client -y > /dev/null 2>&1 
-#goes and replaces the /etc/ssh/sshd_config with clean one
+#Replace and configure SSHD
 echo "Replacing /etc/ssh/sshd_config" >> WorkProperly.txt
 cp /etc/ssh/sshd_config /etc/ssh/.sshd_config
 echo "# Package generated configuration file
@@ -850,4 +818,4 @@ number=0000000001
 #https://linuxsupernoob.wordpress.com/2013/01/08/how-to-send-text-message-from-terminal/
 #http://osxdaily.com/2014/03/12/send-sms-text-message-from-command-line/
 
-echo "THIS SCRIPT IS NOW FINISHED. PROCEED TO DO OTHER THINGS."
+echo "SCRIPT COMPLETE"
