@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #------------BEFORE RUN-------------
+        #NOTE, if the scoring breaks, check the ufw and the services disabled
 	#1. Create a file called "users.txt" that has usernames of allowed users.
 	#2. Create a file called "admin.txt" that has usernames of allowed admins.
 	#3. Create README with all user names
@@ -355,7 +356,9 @@ sysctl --system > /dev/null
 echo "Enabled Cookie Protection"
 
 
-
+#Ignore Broadcast ICMP
+sudo echo "net.ipv4.icmp_echo_ignore_all=1" >> /etc/sysctl.conf
+sysctl -p
 
 #makes updates happen daily
 echo "APT::Periodic::Update-Package-Lists \"1\";
@@ -497,7 +500,7 @@ echo "Finished creating cron/at.allow and deleting cron/at.deny"
 packageName=("john" "telnetd" "logkeys" "hydra" "fakeroot" "nmap" "crack" "medusa" "nikto" "tightvnc" "bind9" "avahi" "cupsd" "postfix" "nginx" "frostwire" "vuze" "samba" "apache2" "ftp" "vsftpd" "netcat" "openssh" "weplab" "pyrit" "mysql" "php5" "proftpd-basic" "filezilla" "postgresql" "irssi")
 dpkgName=("john john-data" "openbsd-inetd telnetd" "logkeys" " hydra-gtk hydra" "fakeroot libfakeroot" "nmap zenmap" "crack crack-common" "libssh2-1 medusa" "" "xtightvncviewer" "bind9 bind9utils" "avahi-autoipd avahi-daemon avahi-utils" "cups cups-core-drivers printer-driver-hpcups cupsddk indicator-printers printer-driver-splix hplip printer-driver-gutenprint bluez-cups printer-driver-postscript-hp cups-server-common cups-browsed cups-bsd cups-client cups-common cups-daemon cups-ppdc cups-filters cups-filters-core-drivers printer-driver-pxljr printer-driver-foo2zjs foomatic-filters cups-pk-helper" "postfix" "nginx nginx-core nginx-common" "frostwire" "azureus vuze" "samba samba-common samba-common-bin" "apache2 apache2.2-bin" "ftp" "vsftpd" "netcat-traditional netcat-openbsd" "openssh-server openssh-client ssh" "weplab" "pyrit" "mysql-server php5-mysql" "php5" "proftpd-basic" "filezilla" "postgresql" "irssi")
 
-#Malware to Add: Nikto, TightVNC, CUPSm frostwire
+#Malware to Add: Nikto, TightVNC, CUPS, frostwire
 
 tLen=${#packageName[@]}		#syntax to find total length of array
 for (( i=0; $i<$tLen; i++)); do
@@ -542,7 +545,6 @@ echo "Finished looking for suspicious files with SUID permissions"
 
 #finds directories that can be written by anyone, anywhere
 ( echo "finding world writable files" >> worldWrite.txt; find / -perm -2 ! -type l -ls >> worldWrite.txt; echo "Finished looking for world writable files") &
-
 
 
 
@@ -806,7 +808,5 @@ disown; sleep 2;
 
 message="The script has finished executing on this computer. This is being run as $(whoami) and has $(finger $(whoami) )."
 number=0000000001
-#sendtext () { curl http://textbelt.com/text -d number=$number -d "message=$message";echo message sent; }
-#sendtext();
 
 echo "SCRIPT COMPLETE"
