@@ -1,4 +1,5 @@
 #!/bin/bash
+#Put service users too?
 
 #------------BEFORE RUN-------------
         #NOTE, if the scoring breaks, check the ufw and the services disabled
@@ -72,7 +73,7 @@ for i in $(cat /etc/passwd | cut -d: -f 1,3,6 | grep -e "[5-9][0-9][0-9]" -e "[0
 	cp /home/$i/.bash_history /logs/$i
 	echo $i  >> usersChanged.txt
 done;
-echo "Finished with changing all passwords"
+echo "Finished with changing all passwords to YuGioSL4vIAA@!*("
 
 
 #Delete bad users
