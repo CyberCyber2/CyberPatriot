@@ -1,5 +1,6 @@
 #!/bin/bash
 #Put service users too?
+#THINGS TO DO: Put files and bad users in document, removing bad shells, ICMP Broadcast requests
 
 #------------BEFORE RUN-------------
         #NOTE, if the scoring breaks, check the ufw and the services disabled
